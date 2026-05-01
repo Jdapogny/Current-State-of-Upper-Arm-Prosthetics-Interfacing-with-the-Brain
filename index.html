@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Thought-Controlled Prosthetic — Interactive Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <p class="eyebrow">Companion visual — brain–computer prosthetic control</p>
+    <h1>The gap between <em>intent</em> and <em>motion</em></h1>
+    <p class="lede">
+      Move your cursor inside the arena below. The dot is what you <strong>want</strong> to touch.
+      Compare how quickly and smoothly a biological arm follows versus a decoded “thought-controlled” prosthesis—subject to delay, noise, speed limits, and coarser control.
+    </p>
+  </header>
+
+  <main>
+    <section class="arena-wrap" aria-label="Interactive simulation">
+      <div class="dev-profile-bar" role="group" aria-label="User developmental history affects prosthetic control metaphor">
+        <span class="dev-profile-label">Same prosthetic hardware — different lifelong motor experience:</span>
+        <label class="chip">
+          <input type="radio" name="devProfile" value="acquired" checked />
+          <span>Acquired later in life</span>
+        </label>
+        <label class="chip">
+          <input type="radio" name="devProfile" value="congenital" />
+          <span>Congenital (born without limb)</span>
+        </label>
+      </div>
+      <p class="dev-profile-note">
+        This is a simplified interaction metaphor: research suggests early limb experience shapes later visuomotor correction and learning limits with an artificial limb—not that the device itself changes.
+      </p>
+
+      <div class="arena-toolbar">
+        <label class="toggle">
+          <input type="checkbox" id="showIntent" checked />
+          <span>Show intent target</span>
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="singleArmMode" />
+          <span>Focus: prosthetic only</span>
+        </label>
+        <button type="button" id="resetBtn" class="btn">Reset arm poses</button>
+      </div>
+
+      <canvas id="simCanvas" width="920" height="420" aria-label="Arm simulation canvas"></canvas>
+
+      <div class="legend">
+        <span class="lg lg-natural"><i></i> Biological arm</span>
+        <span class="lg lg-pro"><i></i> Thought-controlled prosthesis</span>
+        <span class="lg lg-target"><i></i> Your intent (goal)</span>
+      </div>
+    </section>
+
+    <section class="panels">
+      <article class="panel">
+        <h2>What you should notice</h2>
+        <ul>
+          <li><strong>Latency:</strong> Neural decoding and stimulation loops run slower than spinal reflex arcs; the prosthetic “chases” the target.</li>
+          <li><strong>Noise &amp; drift:</strong> Brain signals are noisy; small unintentional movements appear as jitter or wavering.</li>
+          <li><strong>Speed cap:</strong> Motors and safety limits prevent whip-fast motions even when your intent is sudden.</li>
+          <li><strong>Coarser control:</strong> Few effective degrees of freedom vs. a biological hand/wrist; motion can feel “filtered.”</li>
+          <li><strong>Developmental history:</strong> Use the toggle above the canvas—same prosthetic model, but the “congenital” profile adds slower filtering, more jitter, coarser steps, and corrective “hunting,” loosely inspired by differences reported between congenital and acquired limb-loss cohorts.</li>
+        </ul>
+      </article>
+
+      <article class="panel panel-controls">
+        <h2>Tune the prosthetic struggle</h2>
+        <p class="hint">Drag sliders to feel how engineers trade stability vs. responsiveness.</p>
+
+        <div class="slider-row">
+          <label for="lag">Decode / motor lag</label>
+          <input type="range" id="lag" min="0" max="100" value="62" />
+          <span class="val" id="lagVal">62%</span>
+        </div>
+        <div class="slider-row">
+          <label for="noise">Signal noise (jitter)</label>
+          <input type="range" id="noise" min="0" max="100" value="38" />
+          <span class="val" id="noiseVal">38%</span>
+        </div>
+        <div class="slider-row">
+          <label for="speed">Max joint speed</label>
+          <input type="range" id="speed" min="15" max="100" value="42" />
+          <span class="val" id="speedVal">42%</span>
+        </div>
+        <div class="slider-row">
+          <label for="quantize">Control coarseness</label>
+          <input type="range" id="quantize" min="0" max="100" value="45" />
+          <span class="val" id="quantizeVal">45%</span>
+        </div>
+      </article>
+    </section>
+
+    <section class="materials-section" aria-label="Materials strength and cost">
+      <div class="materials-head">
+        <h2>Prosthetic materials: load until failure</h2>
+        <p class="muted-block">
+          Approximate <strong>illustrative</strong> values for classroom comparison—real parts vary by geometry, print orientation, alloy grade, fiber layup, and heat treatment.
+          Always follow manufacturer specifications for clinical components.
+        </p>
+      </div>
+
+      <div class="materials-grid">
+        <div class="material-controls panel">
+          <label class="stack-label" for="matSelect">Structural material</label>
+          <select id="matSelect" class="select-dark"></select>
+
+          <div class="mat-stats" id="matStats"></div>
+
+          <label class="stack-label" for="loadSlider">Applied load on component (simulated)</label>
+          <input type="range" id="loadSlider" min="0" max="100" value="0" />
+          <div class="load-row">
+            <span class="mono" id="loadPct">0%</span>
+            <button type="button" id="impactBtn" class="btn">Simulate impact spike</button>
+            <button type="button" id="repairBtn" class="btn">Reset beam</button>
+          </div>
+
+          <p id="matStatus" class="mat-status" role="status"></p>
+
+          <canvas id="beamCanvas" width="440" height="200" aria-label="Beam stress visualization"></canvas>
+        </div>
+
+        <div class="panel cost-panel">
+          <h3>Relative material cost (approximate)</h3>
+          <p class="hint">Indexed to cheapest bulk reference in this list; USD per kg for rough comparison only.</p>
+          <div id="costBars" class="cost-bars"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="footnote">
+      <h2>How this maps to real BCIs</h2>
+      <p>
+        Real implanted or non-invasive BCIs add calibration sessions, occasional remapping, fatigue effects, and shared autonomy (robot helps with grasp timing).
+        This demo exaggerates constraints so differences are visible in a few seconds—clinical systems vary widely by user, implant, and task.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Educational demo · runs locally in your browser · no data leaves your device</p>
+  </footer>
+
+  <script src="materials.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
